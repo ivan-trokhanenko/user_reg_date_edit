@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function user_reg_date_edit_menu() {
+  $items = array();
+  $items['user/%user/edit/date'] = array(
+    'title' => 'Edit registration date',
+    'description' => 'Set new user registration date.',
+    'page callback' => 'user_reg_date_edit_callback',
+    'page arguments' => array(1),
+    'access callback' => TRUE
+  );
+
+  return $items;
+}
+
+/**
+ * Implements page callback.
+ */
+function user_reg_date_edit_callback($user) {
+  $build = array();
+  $build['form'] = drupal_get_form('user_reg_date_edit_form', $user);
+
+  return drupal_render($build);
+}
+
+/**
+ * Implements form callback.
+ */
+function user_reg_date_edit_form($form, &$form_state, $user) {
+  $form['date'] = array(
+    '#prefix'=> t('Update the registration date for <b>@user</b>', ['@user' => $user->field_profile_first['und'][0]['value'] . ' ' . $user->field_profile_last['und'][0]['value']]),
+    '#date_format' => 'm/d/Y',
+    '#type' => 'date_popup',
+    '#weight'=> 0,
+    '#default_value' => date('Y-m-d', $user->created),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  $form_state['uid'] = $user->uid;
+
+  return $form;
+}
+/**
+ * Implements form submit callback.
+ */
+function user_reg_date_edit_form_submit($form, &$form_state) {
+  $user = user_load($form_state['uid']);
+  $date = $form_state['values']['date'];
+  $user->created = strtotime($date);
+  user_save($user);
+  drupal_set_message(t('Updated the registration date for <b>@user</b>', ['@user' => $user->field_profile_first['und'][0]['value'] . ' ' . $user->field_profile_last['und'][0]['value']]));
+}

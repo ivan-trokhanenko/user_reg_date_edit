@@ -1,0 +1,5 @@
+name = "User Registration Date Edit"
+core = "7.x"
+description = "Provides functionality to edit user registration date."
+package = User
+version = "7.x-1.0"
